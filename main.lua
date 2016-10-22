@@ -7,7 +7,7 @@ local map = require 'map'
 
 function love.load()
 	world.load()
-	player:load(10, 10, 16, 16)
+	player:load(64, 10, 32, 32)
 	map:load()
 end
 
@@ -22,7 +22,8 @@ function love.update(dt)
 end
 
 function love.draw()
-	player:draw({255, 255, 255})
+	player:draw({255, 0, 0})
+	love.graphics.setColor(255,255,255)
 	map:draw()
 	local fps = tostring(love.timer.getFPS())
 	love.graphics.print(fps)

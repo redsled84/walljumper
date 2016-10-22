@@ -34,7 +34,7 @@ end
 
 function entity:draw(colors)
 	love.graphics.setColor(colors[1], colors[2], colors[3])
-	love.graphics.rectangle('line', self.x, self.y, self.w, self.h)
+	love.graphics.rectangle('fill', self.x, self.y, self.w, self.h)
 end
 
 function entity:destory(world)

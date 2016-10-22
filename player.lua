@@ -13,15 +13,15 @@ function player:load(x, y, w, h)
 	self.wallJumpRight = false
 
 	self.jumpFactor = -400
-	self.wallJumpFactor = 300
-	self.wallVelocity = 175
+	self.wallJumpFactor = 350
+	self.wallVelocity = 150
 end
 
 function player:update(dt)
 	self.onGround = false
 	self:applyGravity(dt)
 	self:applyCollisions(dt)
-	self:applyWallVelocity()
+	self:applyWallVelocity(dt)
     self:move(dt)
     self:checkWallJump()
 end
@@ -37,6 +37,7 @@ function player:applyCollisions(dt)
 
 		if col.normal.y == -1 then
 			self.onGround = true
+
 		end
 	end
 
@@ -44,9 +45,13 @@ function player:applyCollisions(dt)
 	self.y = nextY
 end
 
-function player:applyWallVelocity()
+function player:applyWallVelocity(dt)
 	if (self.wallJumpRight or self.wallJumpLeft) and self.vy > 0 then
-		self.vy = self.wallVelocity
+		if self.vy < self.wallVelocity then
+			self.vy = self.vy + low * dt
+		else
+			self.vy = self.wallVelocity
+		end
 	end
 end
 
