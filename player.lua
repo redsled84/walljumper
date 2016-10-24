@@ -15,6 +15,7 @@ function player:load(x, y, w, h)
 	self.jumpFactor = -400
 	self.wallJumpFactor = 350
 	self.wallVelocity = 150
+	self.dead = false
 end
 
 function player:update(dt)
@@ -96,7 +97,7 @@ function player:checkWallJump(dt)
 		local y = self.y
 		local h = self.h
 
-		if item.shape == "rectangle" then
+		if item.type == "solid" then
 			-- Check left side for wall jumping
 			if x1 < item.x + item.width and x1 + wallJumpWidth > item.x and
 			y < item.y + item.height and y + h > item.y then
@@ -108,6 +109,8 @@ function player:checkWallJump(dt)
 			y < item.y + item.height and y + h > item.y then
 				self.wallJumpRight = true
 			end
+		elseif item.type == "spike" then
+			self.dead = true
 		end
 	end
 end

@@ -1,7 +1,13 @@
 local world = require 'world'
+local quads = require 'quads'
 -- maps
 local map_01 = require 'maps.map_01'
 -- local map_02 = require 'maps.map_02'
+
+-- environment tilesets
+local tileset = love.graphics.newImage('tileset.png')
+tileset:setFilter('nearest', 'nearest')
+local tilesetQuads = quads:loadQuads(tileset, 1, 3)
 
 local map = {maps = {}, solids = {}, mapNumber = 0}
 
@@ -27,13 +33,26 @@ function map:loadSolids()
 	self:removeSolids()
 
 	for i = #self.currentMap.layers, 1, -1 do
-		if self.currentMap.layers[i].name == "Solids" then
-			for j = #self.currentMap.layers[i].objects, 1, -1 do
-				local solid = self.currentMap.layers[i].objects[j]
-				print(solid.width)
-				if solid.shape == "rectangle" then
-					self.solids[#self.solids+1] = solid
-					world.bump:add(solid, solid.x, solid.y, solid.width, solid.height)
+		if self.currentMap.layers[i].type == "objectgroup" then
+			local name = self.currentMap.layers[i].name
+			local objects = self.currentMap.layers[i].objects
+			if name == "Solids" then
+				for j = #objects, 1, -1 do
+					local solid = objects[j]
+					solid.type = "solid"
+					if solid.shape == "rectangle" then
+						self.solids[#self.solids+1] = solid
+						world.bump:add(solid, solid.x, solid.y, solid.width, solid.height)
+					end
+				end
+			elseif name == "Spikes" then
+				for j = #objects, 1, -1 do
+					local solid = objects[j]
+					solid.type = "spike"
+					if solid.shape == "rectangle" then
+						self.solids[#self.solids+1] = solid
+						world.bump:add(solid, solid.x, solid.y, solid.width, solid.height)
+					end
 				end
 			end
 		end
@@ -65,8 +84,12 @@ function map:draw()
 			y = y + 1
 			x = 0
 		end
-		if n == 59 then
-			love.graphics.rectangle("fill", x * tilewidth, y * tileheight, tilewidth, tileheight)
+		if n == 1 then
+			love.graphics.draw(tileset, tilesetQuads[1], x * tilewidth, y * tileheight)
+		elseif n == 2 then
+			love.graphics.draw(tileset, tilesetQuads[2], x * tilewidth, y * tileheight)
+		elseif n == 3 then
+			love.graphics.draw(tileset, tilesetQuads[3], x * tilewidth, y * tileheight)
 		end
 	end
 end
