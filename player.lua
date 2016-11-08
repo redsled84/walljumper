@@ -4,6 +4,8 @@ local timer = require 'timer'
 local entity = require 'entity'
 local player = class('player', entity)
 
+local coinVX = love.audio.newSource("sound/coinpickup.wav", "static")
+
 local frc, acc, dec, top, low = 700, 500, 2000, 350, 50
 
 function player:load(x, y, w, h)
@@ -14,7 +16,8 @@ function player:load(x, y, w, h)
 
 	self.jumpFactor = -400
 	self.wallJumpFactor = 350
-	self.wallVelocity = 150
+	self.wallVelocity = 200
+	self.score = 0
 	self.dead = false
 end
 
@@ -25,20 +28,45 @@ function player:update(dt)
 	self:applyWallVelocity(dt)
     self:move(dt)
     self:checkWallJump()
+
+    -- self.vx = 500
+end
+
+function collisionFilter(item, other)
+	if other.type == "coin" then
+		return "cross"
+	else
+		return "slide"
+	end
 end
 
 function player:applyCollisions(dt)
 	local futureX, futureY = self.x + (self.vx * dt), self.y + (self.vy * dt)
-	local nextX, nextY, cols, len = world.bump:move(self, futureX, futureY)
+	local nextX, nextY, cols, len = world.bump:move(self, futureX, futureY, collisionFilter)
 
 	for i = 1, len do
 		local col = cols[i]
 
-		self:applyCollisionNormal(col.normal.x, col.normal.y)
+		if col.other.type ~= "coin" then
+			self:applyCollisionNormal(col.normal.x, col.normal.y)
+		end
 
 		if col.normal.y == -1 then
 			self.onGround = true
+		end
 
+		if col.other.type == "spike" then
+			self.dead = true
+		end
+		if col.other.type == "coin" then
+			self.score = self.score + 1
+			world.bump:remove(col.other)
+			if coinVX:isPlaying() then
+				coinVX:stop()
+				coinVX:play()
+			else
+				coinVX:play()
+			end
 		end
 	end
 
@@ -109,8 +137,6 @@ function player:checkWallJump(dt)
 			y < item.y + item.height and y + h > item.y then
 				self.wallJumpRight = true
 			end
-		elseif item.type == "spike" then
-			self.dead = true
 		end
 	end
 end

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" nextobjectid="12">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="20" height="20" tilewidth="32" tileheight="32" nextobjectid="31">
  <tileset firstgid="1" name="tileset" tilewidth="32" tileheight="32" tilecount="6" columns="6">
   <image source="../tileset.png" width="192" height="32"/>
  </tileset>
@@ -41,5 +41,26 @@
  <objectgroup name="Spikes">
   <object id="10" x="224" y="256" width="256"/>
   <object id="11" x="288" y="608" width="224" height="32"/>
+ </objectgroup>
+ <objectgroup name="Coins">
+  <object id="12" x="96" y="544" width="32" height="32"/>
+  <object id="13" x="96" y="480" width="32" height="32"/>
+  <object id="14" x="96" y="512" width="32" height="32"/>
+  <object id="15" x="128" y="480" width="32" height="32"/>
+  <object id="16" x="128" y="512" width="32" height="32"/>
+  <object id="17" x="128" y="544" width="32" height="32"/>
+  <object id="18" x="160" y="480" width="32" height="32"/>
+  <object id="19" x="160" y="512" width="32" height="32"/>
+  <object id="20" x="160" y="544" width="32" height="32"/>
+  <object id="21" x="352" y="384" width="32" height="32"/>
+  <object id="22" x="384" y="384" width="32" height="32"/>
+  <object id="23" x="512" y="192" width="32" height="32"/>
+  <object id="24" x="544" y="192" width="32" height="32"/>
+  <object id="25" x="576" y="192" width="32" height="32"/>
+  <object id="26" x="480" y="192" width="32"/>
+  <object id="27" x="608" y="256" width="32" height="32"/>
+  <object id="28" x="608" y="288" width="32" height="32"/>
+  <object id="29" x="608" y="320" width="32" height="32"/>
+  <object id="30" x="608" y="352" width="32" height="32"/>
  </objectgroup>
 </map>

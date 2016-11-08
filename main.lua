@@ -10,7 +10,7 @@ local cam = camera()
 
 function love.load()
 	world.load()
-	player:load(64, 10, 32, 32)
+	player:load(64, 64, 32, 32)
 	map:load()
 
 	love.graphics.setBackgroundColor(205,205,205)
@@ -32,11 +32,21 @@ function love.draw()
 
 	player:draw({255, 0, 0})
 	love.graphics.setColor(255,255,255)
-	map:draw()
+	map:drawTiles()
 	local fps = tostring(love.timer.getFPS())
 	love.graphics.print(fps)
+	
+	local items, len = world.bump:getItems()
+	map:drawCoins(items, len)
 
 	cam:detach()
+
+	love.graphics.print(player.score, 10, 10)
+
+	if player.dead then
+		love.graphics.setColor(0,0,0)
+		love.graphics.print("DEAD", love.graphics.getWidth()/2, love.graphics.getHeight()/2)
+	end
 end
 
 function love.keypressed(key)
