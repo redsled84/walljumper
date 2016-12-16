@@ -1,12 +1,12 @@
 local world = require 'world'
 local quads = require 'quads'
 -- maps
-local map_01 = require 'maps.map_01'
+local map_01 = require 'maps.map_03'
 -- local map_02 = require 'maps.map_02'
 
 -- environment tilesets
 local tileset = love.graphics.newImage('tileset.png')
-tileset:setFilter('nearest', 'nearest')
+tileset:setFilter('nearest', 'nearest', 0)
 local tilesetQuads = quads:loadQuads(tileset, 1, 4)
 
 local map = {maps = {}, solids = {}, mapNumber = 0}

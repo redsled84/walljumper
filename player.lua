@@ -28,8 +28,6 @@ function player:update(dt)
 	self:applyWallVelocity(dt)
     self:move(dt)
     self:checkWallJump()
-
-    -- self.vx = 500
 end
 
 function collisionFilter(item, other)

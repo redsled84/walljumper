@@ -5,6 +5,7 @@ local timer = require 'timer'
 local player = require 'player'
 local map = require 'map'
 local camera = require 'camera'
+local disorient = require 'disorient'
 
 local cam = camera()
 
@@ -24,11 +25,14 @@ function love.update(dt)
 	end)
 	--[[]]
 	player:update(dt)
+	local theta = disorient.getTheta()
 	cam:lookAt(player.x, player.y)
 end
 
 function love.draw()
 	cam:attach()
+
+	disorient.disorient(.20, .20, .4)
 
 	player:draw({255, 0, 0})
 	love.graphics.setColor(255,255,255)
@@ -52,6 +56,9 @@ end
 function love.keypressed(key)
 	if key == 'escape' then
 		love.event.quit()
+	end
+	if key == 'r' then
+		love.event.quit('restart')
 	end
 
 	player:jump(key)
