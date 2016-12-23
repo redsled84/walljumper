@@ -39,7 +39,7 @@ function map:loadSolids()
 			if name == "Solids" then
 				for j = #objects, 1, -1 do
 					local solid = objects[j]
-					solid.type = "solid"
+					solid.name = "solid"
 					if solid.shape == "rectangle" then
 						self.solids[#self.solids+1] = solid
 						world.bump:add(solid, solid.x, solid.y, solid.width, solid.height)
@@ -48,7 +48,7 @@ function map:loadSolids()
 			elseif name == "Spikes" then
 				for j = #objects, 1, -1 do
 					local solid = objects[j]
-					solid.type = "spike"
+					solid.name = "spike"
 					if solid.shape == "rectangle" then
 						self.solids[#self.solids+1] = solid
 						world.bump:add(solid, solid.x, solid.y, solid.width, solid.height)
@@ -57,7 +57,7 @@ function map:loadSolids()
 			elseif name == "Coins" then
 				for j = #objects, 1, -1 do
 					local solid = objects[j]
-					solid.type = "coin"
+					solid.name = "coin"
 					if solid.shape == "rectangle" then
 						if solid.height == 0 then
 							solid.height = self.currentMap.height
@@ -76,7 +76,7 @@ function map:loadSolids()
 										y = y,
 										width = self.currentMap.tilewidth,
 										height = self.currentMap.tileheight,
-										type = "coin",
+										name = "coin",
 										shape = "rectangle"
 									}
 									self.solids[#self.solids+1] = coin
@@ -151,7 +151,7 @@ end
 function map:drawCoins(items, len)
 	for i = 1, len do
 		local item = items[i]
-		if item.type == "coin" then
+		if item.name == "coin" then
 			love.graphics.setColor(255,255,255)
 			love.graphics.draw(tileset, tilesetQuads[4], item.x, item.y)
 		end
