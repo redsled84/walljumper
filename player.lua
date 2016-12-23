@@ -2,6 +2,7 @@ local class = require 'middleclass'
 local world = require 'world'
 local timer = require 'timer'
 local entity = require 'entity'
+local particles = require 'particles'
 local player = class('player', entity)
 
 local coinVX = love.audio.newSource("sound/coinpickup.wav", "static")
@@ -9,7 +10,7 @@ local coinVX = love.audio.newSource("sound/coinpickup.wav", "static")
 local frc, acc, dec, top, low = 700, 500, 2000, 350, 50
 
 function player:load(x, y, w, h)
-	self:initialize(world.bump, x, y, w, h)
+	self:initialize(world.bump, x, y, w, h, 'player')
 	self.onGround = false
 	self.wallJumpLeft = false
 	self.wallJumpRight = false
@@ -19,6 +20,7 @@ function player:load(x, y, w, h)
 	self.wallVelocity = 200
 	self.score = 0
 	self.dead = false
+	self.bloodSpray = 0
 end
 
 function player:update(dt)
@@ -31,7 +33,7 @@ function player:update(dt)
 end
 
 function collisionFilter(item, other)
-	if other.type == "coin" then
+	if other.name == "coin" or other.name == 'particle' then
 		return "cross"
 	else
 		return "slide"
@@ -45,7 +47,7 @@ function player:applyCollisions(dt)
 	for i = 1, len do
 		local col = cols[i]
 
-		if col.other.type ~= "coin" then
+		if col.other.name ~= "coin" and col.other.name ~= "particle" then
 			self:applyCollisionNormal(col.normal.x, col.normal.y)
 		end
 
@@ -53,10 +55,14 @@ function player:applyCollisions(dt)
 			self.onGround = true
 		end
 
-		if col.other.type == "spike" then
+		if col.other.name == "spike" then
 			self.dead = true
+			self.bloodSpray = self.bloodSpray + 1
+			if self.bloodSpray == 1 then
+				particles:load(35, 10, 175, player.x+player.w/2, player.y, 6, 6)
+			end
 		end
-		if col.other.type == "coin" then
+		if col.other.name == "coin" then
 			self.score = self.score + 1
 			world.bump:remove(col.other)
 			if coinVX:isPlaying() then
@@ -123,7 +129,7 @@ function player:checkWallJump(dt)
 		local y = self.y
 		local h = self.h
 
-		if item.type == "solid" then
+		if item.name == "solid" then
 			-- Check left side for wall jumping
 			if x1 < item.x + item.width and x1 + wallJumpWidth > item.x and
 			y < item.y + item.height and y + h > item.y then
@@ -138,7 +144,6 @@ function player:checkWallJump(dt)
 		end
 	end
 end
-
 
 function player:jump(key)
 	if key == 'up' then
