@@ -6,6 +6,8 @@ local particles = require 'particles'
 local player = class('player', entity)
 
 local coinVX = love.audio.newSource("sound/coinpickup.wav", "static")
+coinVX:setVolume(0.3)
+local hitVX = love.audio.newSource("sound/hit.wav", "static")
 
 local frc, acc, dec, top, low = 700, 500, 2000, 350, 50
 
@@ -19,8 +21,14 @@ function player:load(x, y, w, h)
 	self.wallJumpFactor = 350
 	self.wallVelocity = 200
 	self.score = 0
-	self.dead = false
+	self.dieTimer = timer:new(2)
 	self.bloodSpray = 0
+	self.dead = false
+end
+
+function player:setSpawn(x, y)
+	self.ox = x
+	self.oy = y
 end
 
 function player:update(dt)
@@ -28,7 +36,11 @@ function player:update(dt)
 	self:applyGravity(dt)
 	self:applyCollisions(dt)
 	self:applyWallVelocity(dt)
-    self:move(dt)
+	if not self.dead then
+    	self:move(dt)
+	else
+		self:updateDead(dt)
+	end
     self:checkWallJump()
 end
 
@@ -50,32 +62,51 @@ function player:applyCollisions(dt)
 		if col.other.name ~= "coin" and col.other.name ~= "particle" then
 			self:applyCollisionNormal(col.normal.x, col.normal.y)
 		end
-
 		if col.normal.y == -1 then
 			self.onGround = true
 		end
-
 		if col.other.name == "spike" then
-			self.dead = true
-			self.bloodSpray = self.bloodSpray + 1
-			if self.bloodSpray == 1 then
-				particles:load(35, 10, 175, player.x+player.w/2, player.y, 6, 6)
-			end
+			self:setDead(dt)
 		end
 		if col.other.name == "coin" then
-			self.score = self.score + 1
-			world.bump:remove(col.other)
-			if coinVX:isPlaying() then
-				coinVX:stop()
-				coinVX:play()
-			else
-				coinVX:play()
-			end
+			self:addScore(col.other)
 		end
 	end
 
 	self.x = nextX
 	self.y = nextY
+end
+
+function player:setDead(dt)
+	self.dead = true
+	if self.bloodSpray == 0 then
+		particles:load(30, 10, 145, player.x+player.w/2, player.y, 4, 4)
+		hitVX:play()
+		self.bloodSpray = self.bloodSpray + 1
+	end
+end
+
+function player:updateDead(dt)
+	self.dieTimer:update(dt, function()
+		self.x = self.ox
+		self.y = self.oy
+		world.bump:update(self, self.x, self.y)
+		self.dead = false
+		self.bloodSpray = 0
+		self.vx = 0
+		self.vy = 0
+	end)
+end
+
+function player:addScore(item)
+	self.score = self.score + 1
+	world.bump:remove(item)
+	if coinVX:isPlaying() then
+		coinVX:stop()
+		coinVX:play()
+	else
+		coinVX:play()
+	end
 end
 
 function player:applyWallVelocity(dt)
@@ -146,7 +177,7 @@ function player:checkWallJump(dt)
 end
 
 function player:jump(key)
-	if key == 'up' then
+	if key == 'up' and not self.dead then
 		if self.onGround then
 			self.vy = self.jumpFactor
 		end

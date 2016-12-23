@@ -17,7 +17,8 @@ end
 
 function love.load()
 	world.load()
-	player:load(64, 64, 32, 32)
+	player:load(64, 32, 32, 32)
+	player:setSpawn(64, 32)
 	map:load()
 
 	love.graphics.setBackgroundColor(205,205,205)

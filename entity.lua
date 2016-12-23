@@ -32,6 +32,10 @@ function entity:applyCollisionNormal(nx, ny, bounciness)
 	self.vx, self.vy = vx, vy
 end
 
+function entity:isSleeping()
+	return self.vx == 0 and self.vy == 0
+end
+
 function entity:draw(colors)
 	love.graphics.setColor(colors[1], colors[2], colors[3])
 	love.graphics.rectangle('fill', self.x, self.y, self.w, self.h)
