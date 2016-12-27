@@ -1,7 +1,7 @@
 local world = require 'world'
 local quads = require 'quads'
 -- maps
-local map_01 = require 'maps.map_03'
+local map_01 = require 'maps.map_04'
 -- local map_02 = require 'maps.map_02'
 
 -- environment tilesets
