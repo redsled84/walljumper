@@ -20,6 +20,7 @@ function player:load(x, y, w, h)
 	self.jumpFactor = -400
 	self.wallJumpFactor = 350
 	self.wallVelocity = 200
+	self.boosterVelocity = 1600
 	self.score = 0
 	self.dieTimer = timer:new(2)
 	self.bloodSpray = 0
@@ -58,7 +59,6 @@ function player:applyCollisions(dt)
 
 	for i = 1, len do
 		local col = cols[i]
-
 		if col.other.name ~= "coin" and col.other.name ~= "particle" then
 			self:applyCollisionNormal(col.normal.x, col.normal.y)
 		end
@@ -70,6 +70,9 @@ function player:applyCollisions(dt)
 		end
 		if col.other.name == "coin" then
 			self:addScore(col.other)
+		end
+		if col.other.name == "booster" and col.normal.y == -1 then
+			self.vx = self.boosterVelocity
 		end
 	end
 

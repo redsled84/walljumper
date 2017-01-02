@@ -1,21 +1,21 @@
 local world = require 'world'
 local quads = require 'quads'
 -- maps
-local map_01 = require 'maps.map_04'
+local map_01 = require 'maps.map_05'
 -- local map_02 = require 'maps.map_02'
 
 -- environment tilesets
 local tileset = love.graphics.newImage('tileset.png')
 tileset:setFilter('nearest', 'nearest', 0)
-local tilesetQuads = quads:loadQuads(tileset, 1, 4)
+local tilesetQuads = quads:loadQuads(tileset, 1, 6)
 
-local map = {maps = {}, solids = {}, mapNumber = 0}
+local map = {maps = {}, objects = {}, mapNumber = 0}
 
 function map:load()
 	self.mapNumber = self.mapNumber + 1
 
 	self:loadMaps()
-	self:loadSolids()
+	self:loadObjects()
 end
 
 function map:loadMaps()
@@ -28,7 +28,7 @@ function map:loadMaps()
 	self.currentMap = self.maps[self.mapNumber]
 end
 
-function map:loadSolids()
+function map:loadObjects()
 	-- remove pre-existing solids on load
 	self:removeSolids()
 
@@ -36,73 +36,90 @@ function map:loadSolids()
 		if self.currentMap.layers[i].type == "objectgroup" then
 			local name = self.currentMap.layers[i].name
 			local objects = self.currentMap.layers[i].objects
-			if name == "Solids" then
-				for j = #objects, 1, -1 do
-					local solid = objects[j]
-					solid.name = "solid"
-					if solid.shape == "rectangle" then
-						self.solids[#self.solids+1] = solid
-						world.bump:add(solid, solid.x, solid.y, solid.width, solid.height)
-					end
-				end
-			elseif name == "Spikes" then
-				for j = #objects, 1, -1 do
-					local solid = objects[j]
-					solid.name = "spike"
-					if solid.shape == "rectangle" then
-						self.solids[#self.solids+1] = solid
-						world.bump:add(solid, solid.x, solid.y, solid.width, solid.height)
-					end
-				end
-			elseif name == "Coins" then
-				for j = #objects, 1, -1 do
-					local solid = objects[j]
-					solid.name = "coin"
-					if solid.shape == "rectangle" then
-						if solid.height == 0 then
-							solid.height = self.currentMap.height
-						end
-						-- generate individual coins from a large object
-						if solid.height > self.currentMap.tileheight or solid.width > self.currentMap.tilewidth then
-							local tileshigh = solid.height / self.currentMap.tileheight
-							local tileswide = solid.width / self.currentMap.tilewidth
-							local x, y = 0, 0
-							for j = 1, tileshigh do
-								y = (j - 1) * self.currentMap.tileheight + solid.y
-								for i = 1, tileswide do
-									x = (i - 1) * self.currentMap.tilewidth + solid.x
-									local coin = {
-										x = x,
-										y = y,
-										width = self.currentMap.tilewidth,
-										height = self.currentMap.tileheight,
-										name = "coin",
-										shape = "rectangle"
-									}
-									self.solids[#self.solids+1] = coin
-									world.bump:add(coin, coin.x, coin.y, coin.width, coin.height)
-								end
-							end
-						end
-						if solid.height == self.currentMap.tileheight and solid.width == self.currentMap.tilewidth then
-							self.solids[#self.solids+1] = solid
-							world.bump:add(solid, solid.x, solid.y, solid.width, solid.height)
-						end
-					end
+			for j = #objects, 1, -1 do
+				local object = objects[j]
+				if name == "Solids" then
+					self:loadSolids(object)
+					
+				elseif name == "Spikes" then
+					self:loadSpikes(object)
+				elseif name == "Coins" then
+					self:loadCoins(object)
+				elseif name == "Boosters" then
+					self:loadBoosters(object)
 				end
 			end
 		end
 	end
 end
 
+function map:loadSolids(object)
+	object.name = "solid"
+	if object.shape == "rectangle" then
+		self.objects[#self.objects+1] = object
+		world.bump:add(object, object.x, object.y, object.width, object.height)
+	end
+end
+
+function map:loadSpikes(object)
+	object.name = "spike"
+	if object.shape == "rectangle" then
+		self.objects[#self.objects+1] = object
+		world.bump:add(object, object.x, object.y, object.width, object.height)
+	end
+end
+
+function map:loadCoins(object)
+	object.name = "coin"
+	if object.shape == "rectangle" then
+		if object.height == 0 then
+			object.height = self.currentMap.height
+		end
+		-- generate individual coins from a large object
+		if object.height > self.currentMap.tileheight or object.width > self.currentMap.tilewidth then
+			local tileshigh = object.height / self.currentMap.tileheight
+			local tileswide = object.width / self.currentMap.tilewidth
+			local x, y = 0, 0
+			for j = 1, tileshigh do
+				y = (j - 1) * self.currentMap.tileheight + object.y
+				for i = 1, tileswide do
+					x = (i - 1) * self.currentMap.tilewidth + object.x
+					local coin = {
+						x = x,
+						y = y,
+						width = self.currentMap.tilewidth,
+						height = self.currentMap.tileheight,
+						name = "coin",
+						shape = "rectangle"
+					}
+					self.objects[#self.objects+1] = coin
+					world.bump:add(coin, coin.x, coin.y, coin.width, coin.height)
+				end
+			end
+		end
+		if object.height == self.currentMap.tileheight and object.width == self.currentMap.tilewidth then
+			self.objects[#self.objects+1] = object
+			world.bump:add(object, object.x, object.y, object.width, object.height)
+		end
+	end
+end
+
+function map:loadBoosters(object)
+	object.name = "booster"
+	if object.shape == "rectangle" then
+		self.objects[#self.objects+1] = object
+		world.bump:add(object, object.x, object.y, object.width, object.height)
+	end
+end
+
 function map:removeSolids()
-	local len = #self.solids
+	local len = #self.objects
 	if len > 0 then
 		for i = len, 1, -1 do
-			world.bump:remove(self.solids[i])
+			world.bump:remove(self.objects[i])
 		end
 		for i = len, 1, -1 do
-			table.remove(self.solids, i)
+			table.remove(self.objects, i)
 		end
 	end
 end
@@ -129,6 +146,8 @@ function map:drawTiles()
 			love.graphics.draw(tileset, tilesetQuads[2], x * tilewidth, y * tileheight)
 		elseif n == 3 then
 			love.graphics.draw(tileset, tilesetQuads[3], x * tilewidth, y * tileheight)
+		elseif n == 5 then
+			love.graphics.draw(tileset, tilesetQuads[5], x * tilewidth, y * tileheight)
 		end
 	end
 end
